@@ -364,7 +364,7 @@ foreach( $wc_product_list as $p ) {
 			$wc_dl_expiry_slug = "_download_expiry";
 			$edd_dl_expiry_unit_slug = "_edd_sl_exp_unit";
 			$edd_dl_expiry_length_slug = "_edd_sl_exp_length";
-			update_post_meta( $edd_product_id, $edd_dl_expiry_length_slug, get_post_meta( $variation->ID, $wc_dl_expiry_slug, true ) );
+			update_post_meta( $edd_product_id, $edd_dl_expiry_length_slug, '' );
 			update_post_meta( $edd_product_id, $edd_dl_expiry_unit_slug, 'days' );
 			$temp_log_str = "\nWC Download Expiry : " . get_post_meta( $variation->ID, $wc_dl_expiry_slug, true ) . " migrated ...\n";
 			$log_str .= $temp_log_str;
@@ -403,7 +403,7 @@ foreach( $wc_product_list as $p ) {
 		}
 
 		// Software Version
-		$wc_api_version_slug = '_api_new_version';
+		$wc_api_version_slug = '_software_version';
 		$edd_sl_version_slug = '_edd_sl_version';
 		update_post_meta( $edd_product_id, $edd_sl_version_slug, get_post_meta( $variation->ID, $wc_api_version_slug, true ) );
 		$temp_log_str = "\nWC Product Version : " . get_post_meta( $variation->ID, $wc_api_version_slug, true ) . " migrated ...\n";
@@ -527,7 +527,7 @@ foreach( $wc_product_list as $p ) {
 		echo $temp_log_str;
 
 		// Activation Limit
-		$wc_activation_limit_slug = '_api_activations_parent';
+		$wc_activation_limit_slug = '_software_activations';
 		$edd_activation_limit_slug = '_edd_sl_limit';
 		update_post_meta( $edd_product_id, $edd_activation_limit_slug, get_post_meta( $p->ID, $wc_activation_limit_slug, true ) );
 		$temp_log_str = "\nWC Activation Limit : " . get_post_meta( $p->ID, $wc_activation_limit_slug, true ) . " migrated ...\n";
@@ -538,7 +538,7 @@ foreach( $wc_product_list as $p ) {
 		$wc_dl_expiry_slug = "_download_expiry";
 		$edd_dl_expiry_unit_slug = "_edd_sl_exp_unit";
 		$edd_dl_expiry_length_slug = "_edd_sl_exp_length";
-		update_post_meta( $edd_product_id, $edd_dl_expiry_length_slug, get_post_meta( $p->ID, $wc_dl_expiry_slug, true ) );
+		update_post_meta( $edd_product_id, $edd_dl_expiry_length_slug, '' );
 		update_post_meta( $edd_product_id, $edd_dl_expiry_unit_slug, 'days' );
 		$temp_log_str = "\nWC Download Expiry : " . get_post_meta( $p->ID, $wc_dl_expiry_slug, true ) . " migrated ...\n";
 		$log_str .= $temp_log_str;
@@ -555,7 +555,7 @@ foreach( $wc_product_list as $p ) {
 	echo $temp_log_str;
 
 	// API Enabled - Licensing Enabled
-	$wc_api_slug = '_is_api';
+	$wc_api_slug = '_is_software';
 	$edd_sl_slug = '_edd_sl_enabled';
 	update_post_meta( $edd_product_id, $edd_sl_slug, get_post_meta( $p->ID, $wc_api_slug, true ) );
 	$temp_log_str = "\nWC Product API Enabled : " . get_post_meta( $p->ID, $wc_api_slug, true ) . " migrated ...\n";
@@ -563,7 +563,7 @@ foreach( $wc_product_list as $p ) {
 	echo $temp_log_str;
 
 	// Software Version
-	$wc_api_version_slug = '_api_new_version';
+	$wc_api_version_slug = '_software_version';
 	$edd_sl_version_slug = '_edd_sl_version';
 	update_post_meta( $edd_product_id, $edd_sl_version_slug, get_post_meta( $p->ID, $wc_api_version_slug, true ) );
 	$temp_log_str = "\nWC Product Version : " . get_post_meta( $p->ID, $wc_api_version_slug, true ) . " migrated ...\n";
@@ -670,8 +670,11 @@ foreach( $wc_coupon_list as $c ) {
 
 	// Adjust according to EDD Format
 	$expiry_date = get_post_meta( $c->ID, 'expiry_date', true );
-	$expiry_date = new DateTime( $expiry_date );
+	$expiry_date = new DateTime( '12/12/2030' );
 	$expiry_date->add( new DateInterval( 'PT23H59M59S' ) );
+	$temp_log_str = "\nEXP - $expiry_date->format('m/d/Y H:i:s')\n";
+	$log_str .= $temp_log_str;
+	echo $temp_log_str;
 	$discount_type = get_post_meta( $c->ID, 'discount_type', true );
 	$data = array(
 		'name' => $c->post_excerpt,
@@ -898,6 +901,13 @@ foreach( $wc_order_list as $o ) {
 		echo $temp_log_str;
 		continue;
 	}
+
+	// Software Add-on Integration.
+	global $wpdb;
+	/*$licence_key = $wpdb->get_row("
+						SELECT * FROM {$wpdb->prefix}woocommerce_software_licences
+						WHERE order_id = $order->id ORDER BY key_id DESC LIMIT 1
+					");*/
 
 	$data = array(
 		'currency' => 'USD',
